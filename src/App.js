@@ -337,7 +337,8 @@ const App = () => {
 
         {/* Footer */}
         <div className="text-center text-gray-500 text-sm mt-8">
-          <p>Powered by AI • Secure & Confidential</p>
+          <p>Crafted with ❤️ by P. Kumaraswamy • NICSAN 2025</p>
+
         </div>
       </div>
     </div>
