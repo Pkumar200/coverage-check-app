@@ -1,74 +1,68 @@
-<<<<<<< HEAD
-# Getting Started with Create React App
+# 🛡️ NICSAN Coverage Check App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a React-based application built for the NICSAN Round 2 Executive Design & Code Role assignment. It helps users calculate their ideal health insurance coverage using AI-simulated logic based on inputs like age, income, city, and dependents.
 
-## Available Scripts
+## ✨ Features
 
-In the project directory, you can run:
+- 🔢 Coverage Calculation based on age, annual income, and number of dependents
+- 📉 Premium Estimation at 0.9% of coverage amount
+- 💬 WhatsApp Quote Button with pre-filled message
+- 🎨 Modern UI Design with Tailwind CSS and animations
+- 🧠 AI-Driven Recommendation simulation
+- 📱 Responsive Design suitable for mobile, tablet, and desktop
+- 🖼️ Logo Branding with NICSAN image
+- ✅ Clean code with React functional components and hooks
 
-### `npm start`
+## 🚀 Tools & Technologies Used
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+React.js – Frontend framework  
+Tailwind CSS – Utility-first CSS styling  
+Lucide React – Icon library  
+Git + GitHub – Version control  
+WhatsApp Web URL – To generate quote message
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📦 Project Structure
 
-### `npm test`
+coverage-check-app/  
+├── public/  
+│   └── nicsan-logo.png (NICSAN logo)  
+├── src/  
+│   ├── App.js (main app logic)  
+│   ├── index.js (entry point)  
+│   ├── index.css (custom and Tailwind CSS)  
+├── tailwind.config.js  
+├── postcss.config.js  
+├── package.json  
+├── README.md  
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠️ How to Run the App Locally
 
-### `npm run build`
+1. Clone the repository:
+   git clone https://github.com/Pkumar200/coverage-check-app.git  
+   cd coverage-check-app  
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. Install dependencies:
+   npm install
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+3. Start the app:
+   npm start
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Then open http://localhost:3000 in your browser.
 
-### `npm run eject`
+## 📱 WhatsApp Integration
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+The app has a “WhatsApp Quote” button that opens WhatsApp (or WhatsApp Web) with a pre-filled message like:  
+"Hi, I’d like a quote for ₹17,00,000 health coverage with ₹15,300 monthly premium."
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🧑 Author
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+P. Kumaraswamy  
+GitHub: https://github.com/Pkumar200  
+Role: Executive Design & Code Candidate  
+Project: NICSAN Round 2 Assignment – Coverage Recommendation App
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 📬 License
 
-## Learn More
+This project is built solely for the purpose of demonstration and evaluation in the NICSAN hiring process. All rights reserved.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-=======
-# coverage-check-app
->>>>>>> 6bbc5452ff3c5a25c6115c296d6cf359ebd7139c
+Built with ❤️ using React + Tailwind CSS + Lucide Icons.
