@@ -258,6 +258,17 @@ const App = () => {
             </button>
           </div>
         </div>
+        {/* Fun Creative Element - Floating Icons */}
+        <div className="fixed bottom-20 right-4 animate-bounce">
+          <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+            <span className="text-2xl">🛡️</span>
+          </div>
+        </div>
+        <div className="fixed bottom-32 left-4 animate-pulse">
+          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <span className="text-xl">💝</span>
+          </div>
+        </div>
         <div className="text-center text-gray-500 text-sm mt-8">
           <p>Crafted with ❤️ by P. Kumaraswamy • NICSAN 2025</p>
         </div>
