@@ -1,30 +1,73 @@
-import React, { useState, useRef } from "react";
-import { Calculator, Shield, Heart, Sparkles } from "lucide-react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import React, { useState, useRef } from 'react';
+import { Calculator, Shield, Heart, Sparkles, Cloud, TrendingUp } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const App = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    age: "",
-    city: "",
-    annualIncome: "",
-    dependents: "",
+    name: '',
+    age: '',
+    city: '',
+    annualIncome: '',
+    dependents: ''
   });
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(true);
+  const [error, setError] = useState(null);
+
   const resultRef = useRef();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: value
     }));
   };
 
-  const calculateCoverage = async (formData) => {
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.age || !formData.city || !formData.annualIncome || !formData.dependents) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('http://localhost:5000/api/calculate-coverage', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data = await response.json();
+
+      if (data.success) {
+        setResult(data.data);
+        setShowForm(false);
+      } else {
+        throw new Error(data.error || 'Failed to calculate coverage');
+      }
+
+    } catch (error) {
+      console.error('Error calculating coverage:', error);
+      setError(error.message);
+
+      const fallbackResult = await calculateCoverageFallback(formData);
+      setResult(fallbackResult);
+      setShowForm(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculateCoverageFallback = async (formData) => {
     const income = parseInt(formData.annualIncome);
     const age = parseInt(formData.age);
     const dependents = parseInt(formData.dependents);
@@ -35,38 +78,15 @@ const App = () => {
     baseCoverage += dependents * income * 2;
 
     const coverage = Math.round(baseCoverage / 100000) * 100000;
+    const monthlyPremium = Math.round(coverage * 0.009);
 
     return {
-      coverage: coverage,
-      reasoning: `Based on your age (${age}), annual income (₹${income.toLocaleString()}), and ${dependents} dependent(s), we recommend a coverage amount of ₹${coverage.toLocaleString()}.`,
+      coverage,
+      monthlyPremium,
+      reasoning: `Based on your profile, we recommend ₹${coverage.toLocaleString()} coverage. (Note: Using fallback calculation - backend services temporarily unavailable)`,
+      weatherInfo: null,
+      marketInfo: null
     };
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.name || !formData.age || !formData.city || !formData.annualIncome || !formData.dependents) {
-      alert("Please fill in all fields");
-      return;
-    }
-    setLoading(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const aiResult = await calculateCoverage(formData);
-      const coverage = aiResult.coverage;
-      const monthlyPremium = Math.round(coverage * 0.009);
-
-      setResult({ coverage, monthlyPremium, reasoning: aiResult.reasoning });
-      setShowForm(false);
-    } catch (error) {
-      console.error("Error calculating coverage:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetForm = () => {
-    setShowForm(true);
-    setResult(null);
-    setFormData({ name: "", age: "", city: "", annualIncome: "", dependents: "" });
   };
 
   const downloadPDF = () => {
@@ -82,13 +102,32 @@ const App = () => {
     });
   };
 
+  const resetForm = () => {
+    setShowForm(true);
+    setResult(null);
+    setError(null);
+    setFormData({
+      name: '',
+      age: '',
+      city: '',
+      annualIncome: '',
+      dependents: ''
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-nicsan-blue mx-auto mb-4"></div>
           <h3 className="text-xl font-semibold text-gray-700 mb-2">Analyzing Your Profile...</h3>
-          <p className="text-gray-600">Our AI is calculating the perfect coverage for you</p>
+          <p className="text-gray-600 mb-2">Fetching weather data for {formData.city}</p>
+          <p className="text-gray-600 mb-4">Checking current market conditions</p>
+          <div className="flex justify-center space-x-1 mt-4">
+            <div className="w-2 h-2 bg-nicsan-blue rounded-full animate-pulse"></div>
+            <div className="w-2 h-2 bg-nicsan-red rounded-full animate-pulse delay-75"></div>
+            <div className="w-2 h-2 bg-nicsan-blue rounded-full animate-pulse delay-150"></div>
+          </div>
         </div>
       </div>
     );
@@ -103,8 +142,14 @@ const App = () => {
               <Shield className="w-8 h-8 text-nicsan-blue" />
             </div>
             <h1 className="text-2xl font-bold text-gray-800 mb-2">Your Perfect Coverage</h1>
-            <p className="text-gray-600">Recommended just for you</p>
+            <p className="text-gray-600">AI-powered recommendation with live data</p>
           </div>
+
+          {error && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4">
+              <p className="text-yellow-800 text-sm">⚠️ Using fallback calculation - some features limited</p>
+            </div>
+          )}
 
           <div ref={resultRef} className="bg-white rounded-2xl shadow-xl p-6 mb-6 border-t-4 border-nicsan-blue">
             <div className="text-center mb-6">
@@ -124,28 +169,48 @@ const App = () => {
               <p className="text-xs text-gray-500 mt-1">0.9% of coverage amount</p>
             </div>
 
+            {(result.weatherInfo || result.marketInfo) && (
+              <div className="bg-blue-50 rounded-xl p-4 mb-6">
+                <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                  <TrendingUp className="w-4 h-4 mr-2 text-blue-600" />
+                  Live Market Data Considered
+                </h4>
+                {result.weatherInfo && (
+                  <div className="flex items-center mb-2">
+                    <Cloud className="w-4 h-4 mr-2 text-blue-500" />
+                    <span className="text-sm text-gray-700">
+                      {result.weatherInfo.city}: {result.weatherInfo.temperature}°C, {result.weatherInfo.description}
+                    </span>
+                  </div>
+                )}
+                {result.marketInfo && (
+                  <div className="flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-2 text-green-500" />
+                    <span className="text-sm text-gray-700">
+                      Bitcoin: {result.marketInfo.btcPrice}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="mb-6">
               <h4 className="font-semibold text-gray-800 mb-2 flex items-center">
                 <Sparkles className="w-4 h-4 mr-2 text-yellow-500" />
-                Why This Amount?
+                AI Recommendation
               </h4>
-              <p className="text-sm text-gray-600 leading-relaxed">{result.reasoning}</p>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {result.reasoning}
+              </p>
             </div>
           </div>
 
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(
-              `Hi, I’d like a quote for ₹${result.coverage.toLocaleString()} health coverage with ₹${result.monthlyPremium.toLocaleString()} monthly premium.`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 block text-center mb-4"
-          >
+          <button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 mb-4">
             <div className="flex items-center justify-center">
               <span className="text-2xl mr-3">📱</span>
               WhatsApp Quote
             </div>
-          </a>
+          </button>
 
           <button
             onClick={downloadPDF}
@@ -154,12 +219,19 @@ const App = () => {
             Download as PDF
           </button>
 
-          <button
+          <button 
             onClick={resetForm}
             className="w-full bg-gray-100 text-gray-700 font-medium py-3 px-6 rounded-xl hover:bg-gray-200 transition-colors"
           >
             Calculate Again
           </button>
+
+          <div className="fixed top-20 right-4 animate-bounce">
+            <Heart className="w-6 h-6 text-red-400 fill-current" />
+          </div>
+          <div className="fixed top-32 left-4 animate-pulse">
+            <Shield className="w-5 h-5 text-blue-400" />
+          </div>
         </div>
       </div>
     );
@@ -169,75 +241,39 @@ const App = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50 p-4">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8 pt-8">
-          <div className="w-32 mx-auto mb-4">
-            <img src="/logo.png" alt="NICSAN Logo" className="w-full object-contain" />
+          <div className="mx-auto mb-4">
+            <img src="/logo.png" alt="NICSAN Logo" className="h-10 md:h-8 object-contain inline-block" />
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Coverage Check</h1>
-          <p className="text-gray-600">Find your perfect health coverage in minutes</p>
+          <p className="text-gray-600">AI-powered with live market data</p>
         </div>
+
 
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none transition-colors"
-                placeholder="Enter your full name"
-              />
+              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none" placeholder="Enter your full name" />
             </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Age</label>
-              <input
-                type="number"
-                name="age"
-                value={formData.age}
-                onChange={handleInputChange}
-                required
-                min="18"
-                max="80"
-                className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none transition-colors"
-                placeholder="Your age"
-              />
+              <input type="number" name="age" value={formData.age} onChange={handleInputChange} required min="18" max="80" className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none" placeholder="Your age" />
             </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">City</label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                required
-                className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none transition-colors"
-                placeholder="Your city"
-              />
+              <input type="text" name="city" value={formData.city} onChange={handleInputChange} required className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none" placeholder="Your city (for weather data)" />
             </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Annual Income (₹)</label>
-              <input
-                type="number"
-                name="annualIncome"
-                value={formData.annualIncome}
-                onChange={handleInputChange}
-                required
-                min="100000"
-                className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none transition-colors"
-                placeholder="Your annual income"
-              />
+              <input type="number" name="annualIncome" value={formData.annualIncome} onChange={handleInputChange} required min="100000" className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none" placeholder="Your annual income" />
             </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Number of Dependents</label>
-              <select
-                name="dependents"
-                value={formData.dependents}
-                onChange={handleInputChange}
-                required
-                className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none transition-colors bg-white"
-              >
+              <select name="dependents" value={formData.dependents} onChange={handleInputChange} required className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-nicsan-blue focus:outline-none bg-white">
                 <option value="">Select dependents</option>
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -247,10 +283,8 @@ const App = () => {
                 <option value="5">5+</option>
               </select>
             </div>
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-gradient-to-r from-nicsan-blue to-nicsan-red text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200"
-            >
+
+            <button onClick={handleSubmit} className="w-full bg-gradient-to-r from-nicsan-blue to-nicsan-red text-white font-bold py-4 px-6 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-200">
               <div className="flex items-center justify-center">
                 <Calculator className="w-5 h-5 mr-2" />
                 Calculate My Coverage
@@ -258,7 +292,11 @@ const App = () => {
             </button>
           </div>
         </div>
-        {/* Fun Creative Element - Floating Icons */}
+
+        <div className="text-center text-xs text-gray-500 mb-4">
+          🔄 Powered by live APIs: Weather + Crypto + AI
+        </div>
+
         <div className="fixed bottom-20 right-4 animate-bounce">
           <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
             <span className="text-2xl">🛡️</span>
@@ -269,6 +307,7 @@ const App = () => {
             <span className="text-xl">💝</span>
           </div>
         </div>
+
         <div className="text-center text-gray-500 text-sm mt-8">
           <p>Crafted with ❤️ by P. Kumaraswamy • NICSAN 2025</p>
         </div>
