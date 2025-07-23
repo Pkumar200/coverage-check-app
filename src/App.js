@@ -240,7 +240,7 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-red-50 p-4">
       <div className="max-w-md mx-auto">
-        <div className="text-center mb-8 pt-8">
+        <div className="text-center mb-4 pt-4">
           <div className="mx-auto mb-4">
             <img src="/logo.png" alt="NICSAN Logo" className="h-10 md:h-8 object-contain inline-block" />
           </div>
